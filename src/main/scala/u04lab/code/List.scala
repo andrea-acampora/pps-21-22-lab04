@@ -10,6 +10,9 @@ enum List[E]:
 
 // a companion object (i.e., module) for List
 object List:
+  def apply[E](elements: E*): List[E] =
+    if elements.isEmpty then Nil() else elements.map(Cons(_, Nil())).reduce[List[E]](append)
+
   def sum(l: List[Int]): Int = l match
     case Cons(h, t) => h + sum(t)
     case _ => 0
@@ -27,6 +30,7 @@ object List:
     case Cons(_, t) => filter(t)(pred)
     case Nil() => Nil()
 
+  @tailrec
   def drop[A](list: List[A], n: Int): List[A] = (n, list) match
     case (0, l) => l
     case (n, List.Cons(_, tail)) => drop(tail, n - 1)
@@ -36,6 +40,7 @@ object List:
     case Cons(head, rest) => Cons(head, append(rest, right))
     case Nil() => right
 
+  @tailrec
   def foldLeft[A, B](list: List[A])(init: B)(f: (B, A) => B): B = list match
     case Nil() => init
     case Cons(h, t) => foldLeft(t)(f(init, h))(f)
@@ -47,6 +52,7 @@ object List:
 
   def length(list: List[_]): Int = List.sum(List.map(list)(_ => 1))
 
+  @tailrec
   def find[A](list: List[A])(f: A => Boolean): Option[A] = list match
     case Cons(elem, rest) if f(elem) => Some(elem)
     case Cons(elem, rest) => find(rest)(f)
@@ -61,3 +67,7 @@ object List:
 
   def take[A](list: List[A], n: Int): List[A] = reverse(drop(reverse(list), length(list) - n))
 end List
+
+@main def main(): Unit =
+  val courses = List('1','2','3')
+  println(courses)
