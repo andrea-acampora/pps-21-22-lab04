@@ -2,6 +2,8 @@ package u04lab.code
 
 import List.*
 
+import scala.annotation.tailrec
+
 trait Student:
   def name: String
   def year: Int
@@ -16,6 +18,7 @@ trait Course:
 
 object Student:
   def apply(name: String, year: Int = 2017): Student = StudentImpl(name, year)
+
   private case class StudentImpl(override val name: String,
                                  override val year: Int) extends Student:
 
@@ -29,12 +32,17 @@ object Course:
   private case class CourseImpl(override val name: String,
                                 override val teacher: String) extends Course
 
+object SameTeacher:
 
-/** Hints:
-  *   - simply implement Course, e.g. with a case class
-  *   - implement Student with a StudentImpl keeping a private Set of courses
-  *   - try to implement in StudentImpl method courses with map
-  *   - try to implement in StudentImpl method hasTeacher with map and find
-  *   - check that the two println above work correctly
-  *   - refactor the code so that method enrolling accepts a variable argument Course*
-  */
+  import scala.Option
+
+  def unapply(courses: List[Course]): Option[String] = courses match
+    case Cons(head, tail) => _findCommonTeacher(tail, head.teacher)
+    case _ => Option.empty
+
+  @tailrec
+  def _findCommonTeacher(courses: List[Course], teacher: String): Option[String] = courses match
+    case Cons(head, _) if head.teacher != teacher => Option.empty
+    case Cons(_, tail) => _findCommonTeacher(tail, teacher)
+    case Nil() => Option(teacher)
+
