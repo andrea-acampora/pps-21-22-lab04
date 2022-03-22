@@ -3,12 +3,11 @@ package u04lab.code
 import scala.annotation.tailrec
 import u04lab.code.Option.*
 import u04lab.code.Option
-// A generic linkedlist
+
 enum List[E]:
   case Cons(head: E, tail: List[E])
   case Nil()
 
-// a companion object (i.e., module) for List
 object List:
   def apply[E](elements: E*): List[E] =
     if elements.isEmpty then Nil() else elements.map(Cons(_, Nil())).reduce[List[E]](append)
@@ -66,8 +65,5 @@ object List:
     case _ => Nil()
 
   def take[A](list: List[A], n: Int): List[A] = reverse(drop(reverse(list), length(list) - n))
-end List
 
-@main def main(): Unit =
-  val courses = List('1','2','3')
-  println(courses)
+end List
