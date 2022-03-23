@@ -1,15 +1,17 @@
 package u04lab.polyglot.a01b
 
-import scala.jdk.javaapi.OptionConverters
 import scala.util.Random.nextInt
 
 import u04lab.polyglot.OptionToOptional
 import u04lab.code.Option
-import u04lab.code.Option.*
 import u04lab.code.List
 import u04lab.code.Stream
+
+import u04lab.code.Option.{Some, None}
 import u04lab.code.Stream.{take, toList, iterate}
 import u04lab.code.List.{flatMap, filter, contains, append, length, Cons, Nil}
+
+case class Pair[A](x: A, y: A)
 
 class LogicsImpl(private val size: Int, private val numberOfMines: Int) extends Logics:
 
@@ -24,15 +26,12 @@ class LogicsImpl(private val size: Int, private val numberOfMines: Int) extends 
     if contains(_mines, Pair(x, y)) then OptionToOptional(None())
     else
       _selected = append(_selected, Cons(Pair(x, y), Nil()))
-      OptionToOptional(Some(_minesInNeighbours(Pair(x, y))))
+      OptionToOptional(Some(minesInNeighbours(Pair(x, y))))
 
   def won: Boolean = length(_selected) + numberOfMines == size * size
 
-  def _minesInNeighbours(value: Pair[Int]): Int =
-    val xAxisNeighbours: List[Int] = toList(take(Stream.iterate(value.x - 1)(_ + 1))(3))
-    val yAxisNeighbours: List[Int] = toList(take(Stream.iterate(value.y - 1)(_ + 1))(3))
-    val allNeighbours: List[Pair[Int]] = flatMap(xAxisNeighbours)(x => flatMap(yAxisNeighbours)(y => Cons(Pair(x, y), Nil())))
-    val neighboursWithMines: List[Pair[Int]] = filter(allNeighbours)(contains(_mines, _))
-    length(neighboursWithMines)
+  private def sameAxisNeighbours(axis: Int): List[Int] = toList(take(Stream.iterate(axis - 1)(_ + 1))(3))
 
-case class Pair[A](x: A, y: A)
+  private def minesInNeighbours(value: Pair[Int]): Int =
+    val allNeighbours: List[Pair[Int]] = flatMap(sameAxisNeighbours(value.x))(x => flatMap(sameAxisNeighbours(value.y))(y => Cons(Pair(x, y), Nil())))
+    length(filter(allNeighbours)(contains(_mines, _)))

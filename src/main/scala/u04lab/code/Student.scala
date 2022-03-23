@@ -34,15 +34,6 @@ object Course:
 
 object SameTeacher:
 
-  import scala.Option
-
-  def unapply(courses: List[Course]): Option[String] = courses match
-    case Cons(head, tail) => _findCommonTeacher(tail, head.teacher)
-    case _ => Option.empty
-
-  @tailrec
-  def _findCommonTeacher(courses: List[Course], teacher: String): Option[String] = courses match
-    case Cons(head, _) if head.teacher != teacher => Option.empty
-    case Cons(_, tail) => _findCommonTeacher(tail, teacher)
-    case Nil() => Option(teacher)
-
+  def unapply(courses: List[Course]): scala.Option[String] = courses match
+    case Cons(head, tail) => foldLeft(tail)(scala.Option(head.teacher))((optionTeacher, course) => optionTeacher.filter( _ == course.teacher))
+    case _ => scala.Option.empty
